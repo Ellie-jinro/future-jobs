@@ -1,0 +1,245 @@
+<!doctype html>
+<html lang="ko">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>AI 시대 직업 분류</title>
+<meta name="description" content="중학교 1학년 진로와 직업 1차시: AI 시대에 줄어들 직업, 바뀔 직업, 새로 생길 직업 분류하기">
+<style>
+  :root {
+    --bg: #f6f7fb; --surface: #ffffff; --ink: #1d2433; --muted: #5b6475; --line: #e2e6ef;
+    --brand: #3b5bdb; --brand-soft: #e8edff;
+    --down: #e03131; --down-soft: #fff0f0; --change: #f08c00; --change-soft: #fff6e6; --up: #2f9e44; --up-soft: #ebfbee;
+    --radius: 18px; --shadow: 0 6px 24px rgba(29, 36, 51, .08);
+  }
+  @media (prefers-color-scheme: dark) {
+    :root:not([data-theme="light"]) {
+      --bg: #12151c; --surface: #1b2029; --ink: #eef1f7; --muted: #a3acbd; --line: #2c3340;
+      --brand: #7b93ff; --brand-soft: #232c45; --shadow: 0 6px 24px rgba(0,0,0,.35);
+      --down-soft: #3a1d1f; --change-soft: #3a2c14; --up-soft: #17321d;
+    }
+  }
+  * { box-sizing: border-box; }
+  html, body { margin: 0; }
+  body { background: var(--bg); color: var(--ink); line-height: 1.6; word-break: keep-all;
+         font-family: "Pretendard", "Malgun Gothic", "Apple SD Gothic Neo", "Noto Sans KR", system-ui, sans-serif; }
+  .wrap { max-width: 1000px; margin: 0 auto; padding: 24px 16px 48px; }
+  header.top { text-align: center; margin-bottom: 20px; }
+  .badge { display: inline-block; background: var(--brand-soft); color: var(--brand); font-weight: 700; font-size: 14px; padding: 4px 12px; border-radius: 999px; }
+  h1 { font-size: clamp(26px, 5.5vw, 40px); margin: 10px 0 4px; letter-spacing: -0.5px; }
+  h2 { font-size: 22px; margin: 28px 0 10px; }
+  .sub { color: var(--muted); margin: 0; }
+  .card { background: var(--surface); border: 1px solid var(--line); border-radius: var(--radius); box-shadow: var(--shadow); padding: 24px; }
+  .hidden { display: none !important; }
+  .btn { appearance: none; border: 0; cursor: pointer; font: inherit; font-weight: 700; background: var(--brand); color: #fff; padding: 14px 28px; border-radius: 999px; font-size: 18px; }
+  .btn:hover { filter: brightness(1.08); }
+  .btn:disabled { opacity: .4; cursor: not-allowed; filter: none; }
+  .btn.ghost { background: transparent; color: var(--brand); border: 2px solid var(--brand); }
+  .center { text-align: center; }
+  .note { font-size: 14px; color: var(--muted); }
+  ol.steps { padding-left: 22px; margin: 8px 0 20px; } ol.steps li { margin: 6px 0; }
+
+  .pool { display: grid; grid-template-columns: repeat(auto-fill, minmax(150px, 1fr)); gap: 10px; min-height: 60px; }
+  .chip { appearance: none; font: inherit; color: inherit; cursor: pointer; text-align: left;
+          background: var(--surface); border: 2px solid var(--line); border-radius: 14px; padding: 10px 12px; box-shadow: var(--shadow);
+          transition: transform .12s, border-color .12s; }
+  .chip:hover { transform: translateY(-2px); border-color: var(--brand); }
+  .chip.sel { border-color: var(--brand); background: var(--brand-soft); transform: scale(1.03); }
+  .chip .e { font-size: 28px; }
+  .chip b { display: block; font-size: 17px; }
+  .chip small { display: block; color: var(--muted); font-size: 13px; line-height: 1.4; }
+  .chip .mark { float: right; font-size: 18px; }
+  .empty { color: var(--muted); font-size: 14px; padding: 8px; grid-column: 1 / -1; text-align: center; }
+
+  .bins { display: grid; grid-template-columns: repeat(3, 1fr); gap: 12px; margin-top: 18px; }
+  .bin { border: 3px dashed var(--line); border-radius: var(--radius); padding: 12px; min-height: 200px; }
+  .bin.down { background: var(--down-soft); border-color: var(--down); }
+  .bin.change { background: var(--change-soft); border-color: var(--change); }
+  .bin.up { background: var(--up-soft); border-color: var(--up); }
+  .bin-head { appearance: none; font: inherit; width: 100%; cursor: pointer; border: 0; border-radius: 12px; color: #fff; font-weight: 800; font-size: 17px; padding: 10px; margin-bottom: 10px; }
+  .bin.down .bin-head { background: var(--down); } .bin.change .bin-head { background: var(--change); } .bin.up .bin-head { background: var(--up); }
+  .bin .pool { grid-template-columns: 1fr; }
+  .bin .chip small { display: none; }
+  .tip { text-align: center; font-weight: 700; color: var(--brand); min-height: 28px; margin: 12px 0 0; }
+
+  .expl { display: grid; gap: 10px; }
+  .exp { border: 1px solid var(--line); border-left: 6px solid var(--line); border-radius: 12px; padding: 10px 14px; }
+  .exp.down { border-left-color: var(--down); } .exp.change { border-left-color: var(--change); } .exp.up { border-left-color: var(--up); }
+  .exp .head { font-weight: 800; }
+  .exp .mine { font-size: 14px; color: var(--muted); }
+  .scorebox { background: var(--brand-soft); border-radius: 14px; padding: 14px 16px; margin-top: 12px; }
+  .q { margin: 14px 0; } .q label { display: block; font-weight: 700; margin-bottom: 6px; }
+  textarea { width: 100%; min-height: 72px; font: inherit; color: var(--ink); background: var(--bg); border: 1px solid var(--line); border-radius: 12px; padding: 10px 12px; resize: vertical; }
+  .actions { display: flex; gap: 10px; flex-wrap: wrap; justify-content: center; margin-top: 22px; }
+  details.teacher { margin-top: 28px; } details.teacher summary { cursor: pointer; font-weight: 700; color: var(--muted); }
+  table { border-collapse: collapse; width: 100%; font-size: 15px; margin-top: 10px; }
+  th, td { border: 1px solid var(--line); padding: 8px 10px; text-align: left; vertical-align: top; } th { background: var(--brand-soft); }
+  footer { text-align: center; color: var(--muted); font-size: 13px; margin-top: 28px; }
+  @media (max-width: 700px) { .bins { grid-template-columns: 1fr; } .bin { min-height: 0; } .card { padding: 18px; } }
+  @media print { .actions, details.teacher summary, #sortArea { display: none; } body { background: #fff; } }
+</style>
+</head>
+<body>
+<div class="wrap">
+  <header class="top">
+    <span class="badge">중1 진로와 직업 · 1차시</span>
+    <h1>🤖 AI 시대, 직업은 어떻게 바뀔까?</h1>
+    <p class="sub">직업 카드 12장을 줄어들 직업, 모습이 바뀔 직업, 새로 생기거나 늘어날 직업으로 나눠 보세요.</p>
+  </header>
+
+  <section id="intro" class="card">
+    <h2 style="margin-top:0">활동 방법</h2>
+    <ol class="steps">
+      <li>위에 있는 <b>직업 카드</b>를 하나 눌러 골라요.</li>
+      <li>아래 바구니 3개 중 알맞은 곳의 <b>제목 버튼</b>을 눌러 넣어요.</li>
+      <li>12장을 모두 넣으면 <b>확인하기</b>를 눌러 전문가 예상과 비교해요.</li>
+    </ol>
+    <p class="note">💡 미래는 아무도 정확히 몰라요. 전문가 예상과 달라도 괜찮아요. 내 생각의 <b>이유</b>가 더 중요해요.<br>
+    🔒 고른 결과와 적은 내용은 어디에도 저장되지 않아요.</p>
+    <div class="center" style="margin-top:20px"><button class="btn" id="startBtn">시작하기 ▶</button></div>
+  </section>
+
+  <section id="game" class="hidden">
+    <div id="sortArea">
+      <div class="card">
+        <div class="pool" id="pool"></div>
+      </div>
+      <p class="tip" id="tip">카드를 하나 골라 보세요.</p>
+    </div>
+    <div class="bins">
+      <div class="bin down"><button class="bin-head" data-bin="down">📉 줄어들 직업</button><div class="pool" id="bin-down"></div></div>
+      <div class="bin change"><button class="bin-head" data-bin="change">🔄 모습이 바뀔 직업</button><div class="pool" id="bin-change"></div></div>
+      <div class="bin up"><button class="bin-head" data-bin="up">📈 새로 생기거나 늘어날 직업</button><div class="pool" id="bin-up"></div></div>
+    </div>
+    <div class="actions">
+      <button class="btn" id="checkBtn" disabled>확인하기 ✔</button>
+    </div>
+  </section>
+
+  <section id="result" class="card hidden" style="margin-top:20px">
+    <h2 style="margin-top:0">🔎 전문가들은 이렇게 예상해요</h2>
+    <div class="scorebox" id="scorebox"></div>
+    <div class="expl" id="expl" style="margin-top:14px"></div>
+
+    <h2>✏️ 생각 정리하기</h2>
+    <div class="q"><label for="q1">1. 📉 줄어들 직업들은 어떤 공통점이 있을까요?</label>
+      <textarea id="q1" placeholder="힌트: 같은 일을 반복하나요? 정해진 규칙대로 하나요?"></textarea></div>
+    <div class="q"><label for="q2">2. AI가 대신하기 어려운, 사람이 더 잘하는 능력은 무엇일까요?</label>
+      <textarea id="q2" placeholder="예) 다른 사람의 마음에 공감하기, 새로운 아이디어 떠올리기"></textarea></div>
+    <div class="q"><label for="q3">3. 내가 관심 있는 직업은 AI 시대에 어떻게 바뀔까요? 그 직업을 위해 지금 키우고 싶은 능력은 무엇인가요?</label>
+      <textarea id="q3" placeholder="예) 웹툰 작가 → AI로 배경을 그려도, 이야기를 만드는 힘은 내가 키워야 해요."></textarea></div>
+    <div class="actions">
+      <button class="btn" id="printBtn">🖨️ 결과 인쇄 · PDF 저장</button>
+      <button class="btn ghost" id="againBtn">↺ 다시 하기</button>
+    </div>
+  </section>
+
+  <details class="teacher">
+    <summary>👩‍🏫 교사용 안내 (수업 흐름 · 성취기준)</summary>
+    <table>
+      <tr><th>성취기준</th><td>[9진로02-01] 사회 변화에 따른 직업 세계의 변화를 이해한다.</td></tr>
+      <tr><th>학습 목표</th><td>AI 등 기술 발달로 줄어들거나, 바뀌거나, 새로 생기는 직업을 분류하고 그 이유를 설명할 수 있다.</td></tr>
+    </table>
+    <table>
+      <tr><th style="width:90px">단계</th><th style="width:70px">시간</th><th>활동</th></tr>
+      <tr><td>도입</td><td>5분</td><td>무인 계산대, AI 번역 등 생활 속 변화 사례 떠올리기 · 활동 방법 안내</td></tr>
+      <tr><td>전개 1</td><td>15분</td><td>개인별 직업 카드 12장 분류</td></tr>
+      <tr><td>전개 2</td><td>15분</td><td>전문가 예상과 비교 · 내 생각과 다른 카드를 골라 모둠에서 이유 토의</td></tr>
+      <tr><td>정리</td><td>10분</td><td>생각 정리 1~3번 작성 · "AI가 대신하기 어려운 사람의 능력" 함께 정리</td></tr>
+    </table>
+    <p class="note">전문가 예상은 일반적으로 알려진 전망을 쉽게 정리한 것이며 정답이 아닙니다. 학생이 다르게 분류했더라도 근거가 타당하면 인정해 주세요.</p>
+  </details>
+  <footer>진로와 직업 수업 자료 · 학생 정보를 저장하거나 전송하지 않습니다.</footer>
+</div>
+
+<script>
+  const BINS = {
+    down:   { n: "줄어들 직업", e: "📉" },
+    change: { n: "모습이 바뀔 직업", e: "🔄" },
+    up:     { n: "새로 생기거나 늘어날 직업", e: "📈" }
+  };
+  const JOBS = [
+    { e: "🛒", n: "계산원", d: "가게에서 물건값을 계산해요.", a: "down", why: "무인 계산대와 스마트폰 결제가 늘면서 일자리가 줄어들 거라는 예상이 많아요." },
+    { e: "☎️", n: "텔레마케터", d: "전화로 상품을 안내하고 판매해요.", a: "down", why: "AI 상담원(챗봇, 음성봇)이 전화 안내를 대신하는 경우가 늘고 있어요." },
+    { e: "⌨️", n: "자료 입력원", d: "종이에 적힌 내용을 컴퓨터에 옮겨 적어요.", a: "down", why: "정해진 내용을 옮기는 반복 작업은 AI와 프로그램이 빠르고 정확하게 할 수 있어요." },
+    { e: "🚗", n: "통행료 징수원", d: "고속도로 요금소에서 통행료를 받아요.", a: "down", why: "하이패스처럼 자동으로 요금을 내는 방식이 넓게 쓰이고 있어요." },
+    { e: "🩺", n: "의사", d: "환자를 진찰하고 병을 치료해요.", a: "change", why: "AI가 엑스레이 같은 사진 분석을 돕지만, 최종 판단과 환자와의 대화는 의사가 해요." },
+    { e: "🧑‍🏫", n: "교사", d: "학생을 가르치고 성장을 도와요.", a: "change", why: "AI가 문제 풀이를 도와도, 학생의 마음을 살피고 함께 성장하도록 돕는 일은 교사의 몫이에요." },
+    { e: "🌐", n: "번역가", d: "다른 나라 말로 된 글을 우리말로 옮겨요.", a: "change", why: "AI 번역이 초안을 만들면, 번역가는 뜻과 문화에 맞게 다듬고 검토하는 일을 더 많이 해요." },
+    { e: "📰", n: "기자", d: "사건을 취재해 기사를 써요.", a: "change", why: "AI가 자료 정리를 도와도, 현장 취재와 사실 확인, 중요한 판단은 기자가 해요." },
+    { e: "⚖️", n: "AI 윤리 전문가", d: "AI가 올바르게 쓰이도록 기준을 만들어요.", a: "up", why: "AI가 공정하고 안전하게 쓰이도록 기준을 만들고 점검할 사람이 필요해졌어요." },
+    { e: "🤖", n: "로봇 유지보수 엔지니어", d: "로봇을 점검하고 고쳐요.", a: "up", why: "공장, 식당, 병원에 로봇이 늘어날수록 로봇을 고치고 관리할 사람이 더 필요해요." },
+    { e: "🚁", n: "드론 교통 관제사", d: "하늘을 나는 드론의 길을 안내해요.", a: "up", why: "배달 드론과 하늘을 나는 교통수단이 늘면 하늘길을 관리할 사람이 필요해요." },
+    { e: "🌱", n: "탄소중립 전문가", d: "온실가스를 줄이는 방법을 찾아요.", a: "up", why: "기후 변화에 대응하려고 온실가스를 줄이고 관리하는 일이 늘고 있어요." }
+  ];
+  const $ = (id) => document.getElementById(id);
+  let place, selected, checked;
+
+  function shuffle(a) { a = a.slice(); for (let i = a.length - 1; i > 0; i--) { const j = Math.floor(Math.random() * (i + 1)); [a[i], a[j]] = [a[j], a[i]]; } return a; }
+  let order = JOBS;
+
+  function start() {
+    order = shuffle(JOBS); place = new Map(); selected = null; checked = false;
+    ["q1", "q2", "q3"].forEach((id) => { $(id).value = ""; });
+    $("intro").classList.add("hidden"); $("result").classList.add("hidden");
+    $("game").classList.remove("hidden"); $("sortArea").classList.remove("hidden");
+    document.querySelectorAll(".bin-head").forEach((b) => { b.disabled = false; });
+    render(); window.scrollTo({ top: 0, behavior: "smooth" });
+  }
+
+  function chip(job, inBin) {
+    const b = document.createElement("button");
+    b.className = "chip" + (selected === job ? " sel" : "");
+    let mark = "";
+    if (checked) mark = `<span class="mark">${place.get(job) === job.a ? "✅" : "💭"}</span>`;
+    b.innerHTML = `${mark}<span class="e">${job.e}</span><b>${job.n}</b><small>${job.d}</small>`;
+    b.addEventListener("click", () => {
+      if (checked) return;
+      if (inBin) { place.delete(job); selected = job; }
+      else selected = (selected === job ? null : job);
+      render();
+    });
+    return b;
+  }
+
+  function render() {
+    const pool = $("pool"); pool.innerHTML = "";
+    const left = order.filter((j) => !place.has(j));
+    left.forEach((j) => pool.appendChild(chip(j, false)));
+    if (!left.length) pool.innerHTML = '<div class="empty">모든 카드를 넣었어요! 아래 확인하기를 눌러 보세요. (바구니 속 카드를 누르면 다시 꺼낼 수 있어요)</div>';
+    Object.keys(BINS).forEach((k) => {
+      const box = $("bin-" + k); box.innerHTML = "";
+      order.filter((j) => place.get(j) === k).forEach((j) => box.appendChild(chip(j, true)));
+    });
+    $("tip").textContent = selected ? `「${selected.n}」을(를) 넣을 바구니의 제목 버튼을 눌러요.` : (left.length ? "카드를 하나 골라 보세요." : "");
+    $("checkBtn").disabled = left.length > 0 || checked;
+  }
+
+  document.querySelectorAll(".bin-head").forEach((b) => b.addEventListener("click", () => {
+    if (!selected || checked) return;
+    place.set(selected, b.dataset.bin); selected = null; render();
+  }));
+
+  function check() {
+    checked = true; render();
+    $("sortArea").classList.add("hidden");
+    document.querySelectorAll(".bin-head").forEach((b) => { b.disabled = true; });
+    const same = JOBS.filter((j) => place.get(j) === j.a).length;
+    $("scorebox").innerHTML = `<b>12장 중 ${same}장이 전문가 예상과 같았어요.</b><br>` +
+      `✅ 표시는 같은 생각, 💭 표시는 다른 생각이에요. 💭 카드는 "왜 그렇게 생각했는지" 친구들과 이야기해 보세요.`;
+    $("expl").innerHTML = Object.keys(BINS).map((k) => JOBS.filter((j) => j.a === k).map((j) => {
+      const mine = place.get(j);
+      return `<div class="exp ${k}"><div class="head">${j.e} ${j.n} → ${BINS[k].e} ${BINS[k].n}</div>` +
+             `<div>${j.why}</div><div class="mine">${mine === k ? "✅ 내 생각과 같아요" : `💭 나는 「${BINS[mine].n}」에 넣었어요`}</div></div>`;
+    }).join("")).join("");
+    $("result").classList.remove("hidden");
+    $("result").scrollIntoView({ behavior: "smooth" });
+  }
+
+  $("startBtn").addEventListener("click", start);
+  $("againBtn").addEventListener("click", start);
+  $("checkBtn").addEventListener("click", check);
+  $("printBtn").addEventListener("click", () => window.print());
+</script>
+</body>
+</html>
